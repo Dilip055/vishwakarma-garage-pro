@@ -1,15 +1,15 @@
 
 name: Docker CI
 
-permissions:
-  contents: read
-  packages: write
-
 on:
   push:
     branches: [master]
   pull_request:
     branches: [master]
+
+permissions:
+  contents: read
+  packages: write
 
 jobs:
   docker-build:
@@ -22,8 +22,24 @@ jobs:
       - name: Validate Docker Compose
         run: docker compose config -q
 
-      - name: Build backend image
-        run: docker build -t garage-backend ./garage-backend
+      - name: Login to GitHub Container Registry
+        if: github.event_name == 'push'
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Build frontend image
-        run: docker build -t garage-frontend ./garage-frontend
+      - name: Build and push backend image
+        uses: docker/build-push-action@v6
+        with:
+          context: ./garage-backend
+          push: ${{ github.event_name == 'push' }}
+          tags: ghcr.io/${{ github.repository_owner }}/garage-backend:latest
+
+      - name: Build and push frontend image
+        uses: docker/build-push-action@v6
+        with:
+          context: ./garage-frontend
+          push: ${{ github.event_name == 'push' }}
+          tags: ghcr.io/${{ github.repository_owner }}/garage-frontend:latest
