@@ -1,6 +1,10 @@
 
 name: Docker CI
 
+permissions:
+  contents: read
+  packages: write
+
 on:
   push:
     branches: [master]
