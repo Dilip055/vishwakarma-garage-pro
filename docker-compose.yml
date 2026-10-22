@@ -1,15 +1,15 @@
 
 services:
   backend:
-    build: ./garage-backend
+    image: ghcr.io/dilip055/garage-backend:latest
     container_name: garage-backend
     ports:
       - "3000:3000"
 
   frontend:
-    build: ./garage-frontend
+    image: ghcr.io/dilip055/garage-frontend:latest
     container_name: garage-frontend
-    ports:
-      - "8080:80"
     depends_on:
       - backend
+    ports:
+      - "8080:80"
